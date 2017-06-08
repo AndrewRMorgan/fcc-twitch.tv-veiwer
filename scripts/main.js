@@ -1,12 +1,12 @@
 $(document).ready(function() {
 
-  var users = ["freecodecamp", "storbeck", "habathcx", "RobotCaleb", "noobs2ninjas", "ESL_SC2", "brunofin", "sheevergaming"];
+  let users = ["freecodecamp", "storbeck", "habathcx", "RobotCaleb", "noobs2ninjas", "ESL_SC2", "brunofin", "sheevergaming"];
 
-  var offlineUsers = [];
-  var onlineUsers = [];
-  var closedUsers = [];
-
-  var url, name, logo, status, color;
+  let offlineUsers = [];
+  let onlineUsers = [];
+  let closedUsers = [];
+  let i = 0;
+  let url, name, logo, status, color;
 
   pushToArrays();
 
@@ -16,15 +16,19 @@ $(document).ready(function() {
     onlyOnlineUsers();
   });
 
+//There is a 404 error for the user brunofin whose account should show us as closed.
+
+//The accounts (online, offline, closed) are also not showing up straight away.
+
   function pushToArrays() {
-    for (var i = 0; i < users.length; i++) {
+    for (i = 0; i < users.length; i++) {
       (function(i) {
-        $.getJSON('https://api.twitch.tv/kraken/channels/' + users[i] + '?callback=?', function(data) {
-          if (data.status !== 422 && data.partner == false) {
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + users[i] + '?callback=?', function(data) {
+          if (data.status !== 404 && data.partner == false) {
             offlineUsers.push(users[i]);
-          } else if (data.status !== 422 && data.partner != false) {
+          } else if (data.status !== 404 && data.partner != false) {
             onlineUsers.push(users[i]);
-          } else if (data.status === 422) {
+          } else if (data.status === 404) {
             closedUsers.push(users[i]);
           };
         });
@@ -33,12 +37,12 @@ $(document).ready(function() {
   };
 
   function onlyOfflineUsers() {
-    for (var j = 0; j < offlineUsers.length; j++) {
-      (function(j) {
-        $.getJSON('https://api.twitch.tv/kraken/channels/' + offlineUsers[j] + '?callback=?', function(data) {
-          if (data.status !== 422 && data.partner == false) {
+    for (i = 0; i < offlineUsers.length; i++) {
+      (function(i) {
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + offlineUsers[i] + '?callback=?', function(data) {
+          if (data.status !== 404 && data.partner == false) {
             url = data.url;
-            name = offlineUsers[j];
+            name = data.display_name;
             status = 'Offline';
             if (data.logo != null) {
             logo = data.logo;
@@ -47,22 +51,19 @@ $(document).ready(function() {
             logo = "rgb(191, 191, 191)";
             $('<div class="offlineUsers"><div style="background-color:' + logo + '; background-size: contain" class="logo"></div><div class="names"><a href="' + url + '" target="_blank">' + name + '</a></div><div class="status">' + status + '</div></div></a>').appendTo('#containingDiv');
             };
-
-
           };
         });
-
-      })(j);
+      })(i);
     };
   };
 
   function onlyOnlineUsers() {
     for (var i = 0; i < onlineUsers.length; i++) {
       (function(i) {
-        $.getJSON('https://api.twitch.tv/kraken/channels/' + onlineUsers[i] + '?callback=?', function(data) {
-          if (data.status !== 422 && data.partner != false) {
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + onlineUsers[i] + '?callback=?', function(data) {
+          if (data.status !== 404 && data.partner != false) {
             url = data.url;
-            name = onlineUsers[i];
+            name = data.display_name;
             logo = data.logo;
             if (data.status.length > 40) {
               status = data.status.substr(0, 40) + "...";
@@ -85,10 +86,10 @@ $(document).ready(function() {
   function onlyClosedUsers() {
     for (var i = 0; i < closedUsers.length; i++) {
       (function(i) {
-        $.getJSON('https://api.twitch.tv/kraken/channels/' + closedUsers[i] + '?callback=?', function(data) {
-          if (data.status === 422) {
+        $.getJSON('https://wind-bow.gomix.me/twitch-api/channels/' + closedUsers[i] + '?callback=?', function(data) {
+          if (data.status === 404) {
             url = '#';
-            name = closedUsers[i];
+            name = data.display_name;
             status = 'Account closed';
             if (data.logo != null) {
             logo = data.logo;
